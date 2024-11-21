@@ -63,6 +63,36 @@ lm_init = lm(swabs ~ crowding*status,data=df)
 anova(lm_init)
 
 
+# boxplots
+
+boxplot(swabs ~ crowding, data = df, 
+        xlab = " ", ylab = "Positive Swabs", cex.lab = 1.2)
+means <- tapply(df$swabs, df$crowding, mean, na.rm = TRUE)
+points(x = 1:length(means), y = means, col = "red", pch = 19, cex = 1.2)
+
+boxplot(swabs ~ status, data = df, 
+        xlab = " ", ylab = "Positive Swabs", cex.lab = 1.2)
+means <- tapply(df$swabs, df$status, mean, na.rm = TRUE)
+points(x = 1:length(means), y = means, col = "red", pch = 19, cex = 1.2)
+
+
+# Interaction plots
+matplot(df_wide[,3:7], type="b", xlab="Families", ylab = "Positive Swabs", 
+        main = "",  cex.lab = 1.2)
+#matplot(t(df_wide[,3:7]), type="b",xlab="Family status", ylab = "Positive Swabs")
+
+interaction.plot(df$status, df$crowding, df$swabs,
+                 col = c("red", "green", "blue"), lty = 1,
+                 xlab = " ", ylab = "Mean Positive Swabs", trace.label = "Crowding",
+                 cex.lab = 1.2)
+
+interaction.plot(df$crowding, df$status, df$swabs,
+                 col = c("red", "green", "blue", "orange", "black"), lty = 1,
+                 xlab = "", ylab = "Mean Positive Swabs", trace.label = "Family Status",
+                 cex.lab = 1.2)
+
+
+
 ################ LMM's ################
 
 # Initial model
