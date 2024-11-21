@@ -59,6 +59,7 @@ summary(model)
 
 #beta*Time: Tells us the change in sqrt_CD4PCT per year since the initial visit.
 
+logLik(model)
 
 #------------------------------------------------
 # iii)
