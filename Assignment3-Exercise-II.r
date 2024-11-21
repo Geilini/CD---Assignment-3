@@ -72,6 +72,7 @@ logLik(model)
 extended_model <- lmer(sqrt_CD4PCT ~ time + treatmnt + baseage + (1 | child_id), data = data)
 summary(extended_model) 
 
+logLik(extended_model)
 
 #------------------------------------------------
 # iv)
