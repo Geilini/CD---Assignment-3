@@ -190,7 +190,8 @@ ggplot(new_children, aes(x = time, y = predicted_CD4PCT, color = treatmnt, group
 
 
 extended_model2 <- lmer(sqrt_CD4PCT ~ time + treatmnt + baseage + (time | child_id), data = data)
-
+summary(extended_model2)
+logLik(extended_model2)
 
 #Model selection
 anova(extended_model2)
@@ -231,3 +232,4 @@ dotplot(ranef_values)
 #-------------------------------------------
 
 summary(final_model)
+logLik(final_model)
