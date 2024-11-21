@@ -80,51 +80,56 @@ logLik(extended_model)
 
 
 # we create a new dataset for the hypothetical next time point
-# where we add n years to the current macimum time value for each child.
+# where we add n years to the current maximum time value for each child.
 # We omit the children that only have NA times.
 # n is the hypothetical next time we predict
-n <- 3
+n <- 1
+#n <- 2
 
 predicted_data <- data %>%
   group_by(child_id) %>%
-  
-  filter(any(!is.na(time))) %>% #Here we filter the NA 
+  filter(any(!is.na(time))) %>% # Ensure at least one valid time value
   summarize(
     time = max(time, na.rm = TRUE) + n,  # Hypothetical next time point
-    treatmnt = first(treatmnt),          # Treatment status (same as before)
-    baseage = first(baseage)             # Baseline age (same as before)
+    treatmnt = first(treatmnt),          # Treatment status remains the same
+    baseage = first(baseage),            # Baseline age remains the same
+    last_sqrt_CD4PCT = sqrt_CD4PCT[which.max(time)]  # sqrt CD4PCT at the last visit
   ) %>%
   ungroup()
 
 # Generate predictions and add as a new column directly
-predicted_data$predicted_sqrt_CD4PCT <- predict(extended_model, newdata = predicted_data, re.form = ~(1 | child_id)
+predicted_data$predicted_sqrt_CD4PCT <- predict(
+  extended_model,
+  newdata = predicted_data,
+  re.form = ~(1 | child_id)
 )
 
-# Back-transform the square root predictions to the original scale
-predicted_data$predicted_CD4PCT <- (predicted_data$predicted_sqrt_CD4PCT)^2
-
 # View the predictions
-print(predicted_data)
+print(predicted_data, widt=Inf)
 
-# Plot prediction colored coded based on treatment.
-ggplot(predicted_data, aes(x = child_id, y = predicted_CD4PCT, fill = as.factor(treatmnt))) +
+ggplot(predicted_data, aes(x = child_id, y = predicted_sqrt_CD4PCT, fill = as.factor(treatmnt))) +
   geom_bar(stat = "identity") +
   labs(
-    title = "Predicted CD4 Percentages at Hypothetical Next Time Point",
+    title = "Predicted Square Root of CD4 Percentage One Year After Last Visit",
+    #title = "Predicted Square Root of CD4 Percentage Two Years After Last Visit",
     x = "Child ID",
-    y = "Predicted CD4 Percentage",
+    y = "Square Root of CD4 Percentage",
     fill = "Treatment"  # Legend title
   ) +
   theme_minimal() +
   scale_x_discrete(
-    breaks = as.character(seq(10, 250, by = 5))  # Specify every 5th child ID
+    breaks = as.character(seq(10, 250, by = 10))  
   ) +
   theme(
-    legend.position = "right",  # Show legend for treatment colors
-    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 8),  # Smaller text
-    axis.title.x = element_text(size = 12),  # Axis title size
-    axis.title.y = element_text(size = 12),  # Y-axis title size
-    plot.title = element_text(size = 15)    # Title size
+    legend.position = "right", 
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 15),
+    axis.text.y = element_text(size = 15), 
+    axis.title.x = element_text(size = 18), 
+    axis.title.y = element_text(size = 18),  
+    legend.title = element_text(size = 16),  
+    legend.text = element_text(size = 14),   
+    plot.title = element_text(size = 20, face = "bold"), 
+    plot.caption = element_text(size = 14)   
   )
 
 
